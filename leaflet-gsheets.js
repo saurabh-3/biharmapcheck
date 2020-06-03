@@ -11,9 +11,9 @@ function init() {
   // these URLs come from Google Sheets 'shareable link' form
   // the first is the polygon layer and the second the points
   var polyURL =
-    "https://docs.google.com/spreadsheets/d/1eYeqglTX2R7l38Ixfo-iIuA6QlYaHcOm7wN1bZ4gr-c/edit?usp=sharing";
+    "https://docs.google.com/spreadsheets/d/1qp11Sv6FxmWRo0EfwEhDaRgc6lv492lzWo9bgtZSIS4/edit?usp=sharing";
   var pointsURL =
-    "https://docs.google.com/spreadsheets/d/17ZKKpTZ5S0LxWKMk5vsl0Hxd7QLqXqCG9v2GiX_XQps/edit?usp=sharing";
+    "https://docs.google.com/spreadsheets/d/1qp11Sv6FxmWRo0EfwEhDaRgc6lv492lzWo9bgtZSIS4/edit?usp=sharing";
 
   Tabletop.init({ key: polyURL, callback: addPolygons, simpleSheet: true });
   Tabletop.init({ key: pointsURL, callback: addPoints, simpleSheet: true }); // simpleSheet assumes there is only one table and automatically sends its data
@@ -21,7 +21,7 @@ function init() {
 window.addEventListener("DOMContentLoaded", init);
 
 // Create a new Leaflet map centered on the continental US
-var map = L.map("map").setView([40, -100], 4);
+var map = L.map("map").setView([40.737, -73.923], 4);
 
 // This is the Carto Positron basemap
 var basemap = L.tileLayer(
@@ -79,7 +79,7 @@ function addPolygons(data) {
 
   for (var row in data) {
     // The Sheets data has a column 'include' that specifies if that row should be mapped
-    if (data[row].include == "y") {
+    if (data[row].include == "total") {
       var coords = JSON.parse(data[row].geometry);
 
       geojsonStates.features.push({
@@ -89,10 +89,12 @@ function addPolygons(data) {
           coordinates: coords
         },
         properties: {
-          name: data[row].name,
-          summary: data[row].summary,
-          state: data[row].state,
-          local: data[row].local
+          district: data[row].district,
+          new_confirmed: data[row].new_confirmed,
+          confirmed: data[row].confirmed,
+          active: data[row].active,
+          recovered: data[row].recovered,
+          deceased: data[row].deceased,
         }
       });
     }
@@ -119,9 +121,9 @@ function addPolygons(data) {
           L.DomEvent.stopPropagation(e);
 
           document.getElementById("sidebar-title").innerHTML =
-            e.target.feature.properties.name;
+            e.target.feature.properties.district;
           document.getElementById("sidebar-content").innerHTML =
-            e.target.feature.properties.summary;
+            e.target.feature.properties.confirmed;
           sidebar.open(panelID);
         }
       });
